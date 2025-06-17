@@ -1,8 +1,5 @@
 import Data_Generation.Kolmogorov.util as util
-import sys
-import os
-sys.path.append('/home/ql2221/Projects/Joan_Bruna_work/Data_Generation/Kolmogorov')
-import simulate as simulate
+import Conditional_thermalizer.Data.Data_generation.Kolmogorov.simulate as simulate
 
 import torch
 import argparse

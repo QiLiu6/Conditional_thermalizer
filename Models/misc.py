@@ -13,18 +13,14 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 
 import sys
-sys.path.append('/home/ql2221/Projects/Joan_Bruna_work/UUnet')
-import Models.diffusion as diffusion
-import Models.Unet as Unet
-import Models.Munet as Munet
+import Conditional_thermalizer.Models.diffusion as diffusion
+import Conditional_thermalizer.Models.Unet as Unet
 
 ### Model factory
 def model_factory(config):
     """ Function to take a config dict, and return one of our nn.Modules """
     if config["model_type"]=="ModernUnet":
         return Unet.ModernUnet(config)
-    elif config["model_type"]=="Munet":
-        return Munet.ModernUnet(config)
     else:
         print("Model type not recognised")
         quit()
@@ -176,33 +172,6 @@ def estimate_covmat(field_tensor,nsamp=None):
     cov/=(nsamp-1)
     return cov
 
-
-def get_whitening_from_cov(cov):
-    """ Get whitening matrix from covariance matrix
-        We are using the fact that we can diagonalise
-        covariance matrix K=ULU^T
-
-        Which allows us to obtain:
-        W=K^{-1/2}=UL^{-1/2}U^T
-
-        and produce a whitened random vector z=Wx with
-        identity covariance.
-
-        Return both the whitening and dewhitening matrices
-    """
-    
-    ## Get eigenvalue decomposition of covariance matrix
-    lamb,u=torch.linalg.eig(cov)
-    ## Find L^{-1/2}
-    lambinv=torch.eye(len(lamb))*(1/torch.sqrt(lamb))
-    lambroot=torch.eye(len(lamb))*(torch.sqrt(lamb))
-
-    ## W=K^{-1/2}=UL^{-1/2}U^T
-    whitener=torch.matmul(torch.matmul(u,lambinv),u.T)
-    dewhitener=torch.matmul(torch.matmul(u,lambroot),u.T)
-
-    return whitener, dewhitener
-    
 
 class FieldNoiser():
     """ Forward diffusion module for various different noise schedulers """

@@ -16,12 +16,9 @@ import torch.distributed as dist
 
 # import UUnet.Models.diffusion as diffusion
 #for local use
-import sys
-sys.path.append('/home/ql2221/Projects/Joan_Bruna_work/UUnet/Models')
-import diffusion
-import misc
-sys.path.append('/home/ql2221/Projects/Joan_Bruna_work/UUnet/Data')
-import Dataset as datasets
+import Conditional_thermalizer.Models.diffusion as diffusion
+import Conditional_thermalizer.Models.misc as misc
+import Conditional_thermalizer.Data.Dataset as datasets
 
 def setup():
     """Sets up the process group for distributed training.
@@ -172,7 +169,7 @@ class Trainer:
     def run(self):
         raise NotImplementedError("Implemented by subclass")
 
-class UUnetTrainer(Trainer):
+class CTTrainer(Trainer):
     def __init__(self,config):
         super().__init__(config)
         self.timesteps = config["timesteps"]

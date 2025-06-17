@@ -1,13 +1,8 @@
 import os
 import wandb
-#from UUnet.Training import Train_Unet
 
-#for local use
-import sys
-sys.path.append('/home/ql2221/Projects/Joan_Bruna_work/UUnet/Training')
-import Train_Unet
-# sys.path.append('/home/ql2221/Projects/Joan_Bruna_work/UUnet/Models')
-# import misc.random_string as rs
+import Conditional_thermalizer.Training.Train_conditional_thermalizer_algo as Train_CT
+import Conditional_thermalizer.Models.misc as misc
 
 
 ## Stop jax hoovering up GPU memory
@@ -34,8 +29,8 @@ config["project"]="thermalizer"
 
 if len(sys.argv) > 1:
     wandb_run_name = sys.argv[1]  # take the first argument
-# else:
-#     wandb_run_name = rs()
+else:
+    wandb_run_name = misc.rs()
 config["wandb_run_name"] = wandb_run_name
 config["norm"]=False
 config["ddp"]=False
@@ -47,7 +42,7 @@ config["train_ratio"]=0.95
 config["save_name"]="model_weights.pt"
 
 config["optimization"]={}
-config["optimization"]["epochs"]=100
+config["optimization"]["epochs"]=200
 config["optimization"]["lr"]=0.0002
 config["optimization"]["wd"]=0.05
 config["optimization"]["batch_size"]=64
@@ -60,6 +55,6 @@ config["optimization"]["scheduler_gamma"]=0.5
 # trainer = Train_Unet.trainer_from_checkpoint(checkpoint_string)
 # trainer.config["optimization"]["epochs"]= config["optimization"]["epochs"]
 
-trainer = Train_Unet.UUnetTrainer(config)
+trainer = Train_CT.CTTrainer(config)
 print(trainer.config["cnn learnable parameters"])
 trainer.run()
