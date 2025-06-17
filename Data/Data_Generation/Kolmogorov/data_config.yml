@@ -1,0 +1,9 @@
+reynolds: 10000       ## Reynolds number
+nsteps: 450000           ## Number of emulator timesteps to train over, i.e. the length of a training rollout
+dt: 0.001            ## Numerical timestep for jax_cfd
+Dt: 0.005             ##Physical Step
+spinup: 3000        ## How many numerical timesteps to run before storing snapshots, also known as spinup phase
+gridsize: 512        ## Simulation gridsize
+downsample: 8        ## Downsampling factor for emulator fields
+n_sims: 5         ## Number of training sims to run
+chunk_size: 1000      ## Number of simulation steps to process at once (reduce if still getting OOM)
