@@ -33,7 +33,7 @@ def get_batch_indices(num_samps,batch_size,seed=67):
     return batches
 
 
-def parse_data_file(config):
+def parse_kol_data(config):
     """ 
     From a config dict, this function will:
     1. load and normalise data from the file path
