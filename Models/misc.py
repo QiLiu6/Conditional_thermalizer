@@ -13,8 +13,8 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 
 import sys
-import Conditional_thermalizer.Models.diffusion as diffusion
-import Conditional_thermalizer.Models.Unet as Unet
+import Models.diffusion as diffusion
+import Models.Unet as Unet
 
 ### Model factory
 def model_factory(config):

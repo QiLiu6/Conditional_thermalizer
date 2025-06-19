@@ -4,10 +4,7 @@ from torch import nn
 import os
 import math
 import pickle
-
-import sys
-sys.path.append('/home/ql2221/Projects/Joan_Bruna_work/UUnet/Models')
-import misc
+import Models.misc as misc
 ## Adapted from the beautiful repo at https://github.com/pdearena/pdearena/blob/main/pdearena/modules/twod_unet.py
 
 class ResidualBlock(nn.Module):

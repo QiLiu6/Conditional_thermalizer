@@ -1,5 +1,5 @@
 import os
-import Conditional_thermalizer.Training.Train_emulator_algo as Train_emulator
+import Training.Train_emulator_algo as Train_emulator
 import wandb
 
 ## Stop jax hoovering up GPU memory

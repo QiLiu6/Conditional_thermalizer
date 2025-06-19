@@ -1,8 +1,8 @@
 import os
 import wandb
 
-import Conditional_thermalizer.Training.Train_conditional_thermalizer_algo as Train_CT
-import Conditional_thermalizer.Models.misc as misc
+import Training.Train_conditional_thermalizer_algo as Train_CT
+import Models.misc as misc
 
 
 ## Stop jax hoovering up GPU memory

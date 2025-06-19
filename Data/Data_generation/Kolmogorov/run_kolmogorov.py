@@ -1,5 +1,5 @@
 import Data_Generation.Kolmogorov.util as util
-import Conditional_thermalizer.Data.Data_generation.Kolmogorov.simulate as simulate
+import Data.Data_generation.Kolmogorov.simulate as simulate
 
 import torch
 import argparse

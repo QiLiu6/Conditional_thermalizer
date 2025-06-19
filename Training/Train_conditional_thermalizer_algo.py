@@ -16,9 +16,9 @@ import torch.distributed as dist
 
 # import UUnet.Models.diffusion as diffusion
 #for local use
-import Conditional_thermalizer.Models.diffusion as diffusion
-import Conditional_thermalizer.Models.misc as misc
-import Conditional_thermalizer.Data.Dataset as datasets
+import Models.diffusion as diffusion
+import Models.misc as misc
+import Data.Dataset as datasets
 
 def setup():
     """Sets up the process group for distributed training.
