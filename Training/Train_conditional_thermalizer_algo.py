@@ -44,11 +44,12 @@ def trainer_from_checkpoint(checkpoint_string):
 class Trainer:
     """ Base trainer class """
     def __init__(self,config):
-        self.config  =config
-        self.epoch = 1 ## Initialise at first epoch
-        self.training_step = 0 ## Counter to keep track of number of weight updates
-        self.wandb_init = False ## Bool to track whether or not wandb run has been initialised
-        self.ema=None
+        self.config  = config
+        self.epoch = 1
+        self.training_step = 0
+        self.wandb_init = False 
+        self.ema = None
+        
         if self.config.get("wandb_log_freq"):
             self.log_freq = self.config.get("wandb_log_freq")
         else:
@@ -95,7 +96,7 @@ class Trainer:
         self.wandb_init=True 
         ## Sync all configs
         wandb.config.update(self.config, allow_val_change=True)
-        self.model.config=self.config
+        self.model.config = self.config
 
     def resume_wandb(self):
         """ Resume a wandb run from the self.config wandb url. """
@@ -105,9 +106,8 @@ class Trainer:
         return
 
     def _prep_data(self):
-        #debugging
         if self.config["PDE"] == "Kolmogorov":
-            train_data, valid_data, config = datasets.parse_data_file(self.config)
+            train_data, valid_data, config = datasets.parse_kol_data(self.config)
         else:
             print("Need to know what PDE system we are working with")
             quit()
