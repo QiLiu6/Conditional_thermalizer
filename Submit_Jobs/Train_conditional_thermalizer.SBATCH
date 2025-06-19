@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=Train_Emu
+#SBATCH --job-name=Train_Therm
 #SBATCH --time=12:00:00
 #SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
