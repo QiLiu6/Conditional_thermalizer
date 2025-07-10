@@ -198,7 +198,6 @@ class Upsample(nn.Module):
     def forward(self, x: torch.Tensor, delta = None, t = None):
         return self.conv(x)
 
-
 class Downsample(nn.Module):
     r"""Scale down the feature map by $\frac{1}{2} \times$
 
@@ -212,6 +211,46 @@ class Downsample(nn.Module):
 
     def forward(self, x: torch.Tensor, delta = None, t = None):
         return self.conv(x)
+        
+class RegressorBlock(nn.Module):
+    def __init__(self, mid_channels: int, mid_size: int, mlp_dim: int=256, out_dim: int=1,
+                         mlp_max: int=4096, activation: str = "gelu", norm: bool = False):
+        """ Block to take the encoded middle layer, run through a 1x1 conv,
+            then vectorise to an MLP to produce a scalar output. We will use this
+            to try and predict the noise level in the fields.
+            
+            mid_channels: number of channels in the middle layer - used to define 1x1 conv
+            mid_size: image size in the middle layer - used to define MLP layer size
+            """
+        
+        super().__init__()
+
+        ## Set number of channels to compress intermediate layer to
+        self.intermediate_filters=round(mlp_max/mid_size**2)
+        self.vector_size=(mid_size**2)*self.intermediate_filters
+        
+        self.activation: nn.Module = misc.ACTIVATION_REGISTRY.get(activation, None)
+        self.conv1=nn.Conv2d(mid_channels, mid_channels, kernel_size=(3, 3), padding=(1, 1), padding_mode="circular")
+        self.conv2=nn.Conv2d(mid_channels, self.intermediate_filters, kernel_size=(1, 1), padding_mode="circular")
+        self.linear1=nn.Linear(self.vector_size, out_dim)
+        self.linear2=nn.Linear(out_dim, out_dim)
+
+        if norm:
+            self.norm1 = nn.GroupNorm(n_groups, in_channels)
+            self.norm2 = nn.GroupNorm(n_groups, out_channels)
+        else:
+            self.norm1 = nn.Identity()
+            self.norm2 = nn.Identity()
+
+    def forward(self,x):
+        """ Forward pass - run some convolutions, then vectorise to MLP and
+            produce scalar output """
+        x = self.conv1(self.activation(self.norm1(x)))
+        x = self.conv2(self.activation(self.norm2(x)))
+        x = x.reshape(x.shape[0],x.shape[1]*x.shape[2]*x.shape[3])
+        x = self.activation(self.linear1(x))
+        x = self.linear2(x)
+        return x
 
 
 class ModernUnet(nn.Module):
@@ -379,3 +418,63 @@ class ModernUnet(nn.Module):
             pickle.dump(save_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
         print("Model saved as %s" % save_string)
         return
+
+class ModernUnetRegressor(ModernUnet):
+    """ Inherit the Modern Unet, but add a scalar output
+        to perform regression, by overriding forward method """
+    def __init__(self,config):
+        super().__init__(config)
+        self.config["model_type"]="ModernUnetRegressor"
+        self.mid_pix=int(self.config["image_size"]/(2*(len(self.config["dim_mults"])-1)))
+        self.mid_channels=self.config["hidden_channels"]*math.prod(self.config["dim_mults"])
+        self.out_features=self.config["timesteps"]
+        self.regressor_block=RegressorBlock(self.mid_channels,self.mid_pix,out_dim=self.out_features)
+        self.softmax=nn.Softmax(dim=1)
+
+    def forward(self, x: torch.Tensor, delta = None, regression_output: bool=False):
+        """ Forward pass - add a flag to optionally return the regression output, as this
+            is not always needed """
+        x = self.image_proj(x)
+
+        h = [x]
+        for m in self.down:
+            x = m(x,delta)
+            h.append(x)
+
+        x = self.middle(x,delta)
+        if regression_output:
+            y = self.regressor_block(x)
+
+        for m in self.up:
+            if isinstance(m, Upsample):
+                x = m(x,delta)
+            else:
+                # Get the skip connection from first half of U-Net and concatenate
+                s = h.pop()
+                x = torch.cat((x, s), dim=1)
+                x = m(x,delta)
+
+        x = self.final(self.activation(self.norm(x)))
+        if regression_output:
+            return x, y
+        else:
+            return x
+
+    @torch.no_grad()
+    def noise_class_distribution(self, x: torch.Tensor):
+        """ Forward pass with only a regressor output - skipping the conv upsampling output for the
+            score field prediction. Return the full predicted categorical distribution """
+
+        x = self.image_proj(x)
+        for m in self.down:
+            x = m(x)
+        x = self.middle(x)
+        x = self.softmax(self.regressor_block(x))
+        return x
+
+    @torch.no_grad()
+    def noise_class(self, x: torch.Tensor):
+        """ Get predicted noise class  """
+
+        x = self.noise_class_distribution(x)
+        return x.argmax(1)

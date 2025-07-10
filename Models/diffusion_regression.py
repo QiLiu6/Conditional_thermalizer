@@ -6,7 +6,7 @@ from scipy.stats import truncnorm
 import torch
         
         
-class Diffusion(nn.Module):
+class Diffusion_regression(nn.Module):
     def __init__(self,config,model,silence=True):
         """ 
         Constructor of the Diffusion model.
@@ -16,13 +16,16 @@ class Diffusion(nn.Module):
                 model: torch.nn.Module : based architecture for the diffusion model (we use Unet)
                 silence: boolean       : silence tqdm outputs
         """
+        
         super().__init__()
         self.config=config
+        
         ## Store number of timesteps
         if "timesteps" in self.config:
             self.timesteps = self.config["timesteps"]
         if "lagsteps" in self.config:
             self.lagsteps = self.config["lagsteps"]
+            
         self.in_channels=self.config["input_channels"]
         self.image_size=self.config["image_size"]
         
@@ -31,11 +34,6 @@ class Diffusion(nn.Module):
             self.lag_embedding = self.config["lag_embedding"]
         else:
             self.lag_embedding=None
-
-        if "noise_timestep_embedding" in self.config:
-            self.noise_timestep_embedding = self.config["noise_timestep_embedding"]
-        else:
-            self.noise_timestep_embedding = None
 
         self.silence=silence
         self.sampled_times=[]        
@@ -68,7 +66,6 @@ class Diffusion(nn.Module):
         
         #generate random ts
         t = torch.randint(0,self.timesteps-1,(x.shape[0],)).to(x.device)
-        self.sampled_times.append(t)
 
         # Input has size B x T x L x L, we only select the Tth snapshot
         x_t = x[:,-1:]
@@ -84,9 +81,12 @@ class Diffusion(nn.Module):
                 
         #concatenate the vectors so that they can be fed into the neural net
         x_noised_plus_x_t_minus = torch.cat((x_t_noised, x_t_minus), dim=1)
-        pred_noise=self.model(x_noised_plus_x_t_minus, delta, t)
-            
-        return pred_noise
+        if predict_noise_level:
+            pred_noise, pred_noise_level = self.model(x_noised_plus_x_t_minus,delta,True)
+            return pred_noise,x_t,t,pred_noise_level
+        else:
+            pred_noise=self.model(x_noised_plus_x_t_minus)
+            return pred_noise
 
     @torch.no_grad()
     def sampling(self, n_samples, x_t_minus, delta, clipped_reverse_diffusion=None,device="cuda"):

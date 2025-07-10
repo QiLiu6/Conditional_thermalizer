@@ -19,7 +19,6 @@ import thermalizer.models.misc as misc
 import thermalizer.models.diffusion as diffusion
 import thermalizer.kolmogorov.performance as performance
 import thermalizer.qg.performance as performance_qg
-import thermalizer.models.refiner as refiner
 
 
 def setup():
