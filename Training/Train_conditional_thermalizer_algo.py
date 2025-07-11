@@ -14,11 +14,12 @@ from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
 
-# import UUnet.Models.diffusion as diffusion
+
 #for local use
 import Models.diffusion as diffusion
 import Models.misc as misc
 import Data.Dataset as datasets
+
 
 def setup():
     """Sets up the process group for distributed training.
@@ -26,20 +27,22 @@ def setup():
     torch.cuda.set_device(int(os.environ["LOCAL_RANK"]))
     dist.init_process_group("nccl")
 
+
 def cleanup():
     """Cleans up the process group."""
     dist.destroy_process_group()
+
 
 def trainer_from_checkpoint(checkpoint_string):
     with open(checkpoint_string, 'rb') as fp:
         model_dict = pickle.load(fp)
     if model_dict["config"]["model_type"]=='ModernUnet':
-        trainer = UUnetTrainer(model_dict["config"])
-    else:
-        print("You are probably using Chris's code again")
-        quit()
-    trainer.load_checkpoint(checkpoint_string)
+        trainer = CT_Trainer(model_dict["config"])
+    else if model_dict["config"]["model_type"]=='ModernUnetRegressor':
+        trainer = CTR_Trainer(model_dict["config"])
+        trainer.load_checkpoint(checkpoint_string)
     return trainer
+
 
 class Trainer:
     """ Base trainer class """
@@ -169,7 +172,8 @@ class Trainer:
     def run(self):
         raise NotImplementedError("Implemented by subclass")
 
-class CTTrainer(Trainer):
+
+class CT_Trainer(Trainer):
     def __init__(self,config):
         super().__init__(config)
         self.timesteps = config["timesteps"]
@@ -200,6 +204,131 @@ class CTTrainer(Trainer):
             self.resume_wandb()
 
         return
+
+    def training_loop(self):
+        """ Training loop for Unified Unet for learning conditional distribution"""
+        self.model.train()
+        for j,image in enumerate(self.train_loader):
+            image = image.to(self.gpu_id)
+            self.optimizer.zero_grad()
+            
+            noise = torch.zeros_like(image)  # No noise anywhere initially
+            for i in range(len(image)):
+                noise[i, -1] = torch.randn_like(image[i, -1])  # Only add noise at t=t
+            noise = noise.to(self.gpu_id)  # Move to GPU
+            
+            delta = torch.randint(1, self.config["lagsteps"]-1, (1,))
+            pred_noise = self.model(image,noise,delta.item())
+            
+            noise = noise[:,-1:]
+            loss = self.criterion(pred_noise,noise)
+            loss.backward()
+
+            self.optimizer.step()
+            if self.scheduler:
+                self.scheduler.step()
+
+            if self.logging and (self.training_step%self.log_freq==0):
+                log_dic={}
+                log_dic["train_loss"]=loss.item()
+                log_dic["training_step"]=self.training_step
+                if self.scheduler:
+                    log_dic["lr"]=self.scheduler.get_last_lr()[-1]
+                wandb.log(log_dic)
+            self.training_step+=1
+
+            if self.ema:
+                self.ema.update()
+
+        return loss
+
+    def valid_loop(self):
+        """ Training loop for UUnet. Aggregate loss over validation set for wandb update """
+        log_dic = {}
+        self.model.eval()
+        if self.ema:
+            self.ema.apply_shadow()
+        epoch_loss = 0
+        nsamp = 0
+        with torch.no_grad():
+            for x_valid in self.valid_loader:
+                x_valid = x_valid.to(self.gpu_id)
+                nsamp += x_valid.shape[0]
+                loss = 0
+                
+                noise = torch.zeros_like(x_valid)  # No noise anywhere initially
+                for i in range(len(x_valid)):
+                    noise[i, -1] = torch.randn_like(x_valid[i, -1])  # Only add noise at t=t
+                noise = noise.to(self.gpu_id)  # Move to GPU
+            
+                delta = torch.randint(1, self.config["lagsteps"]-1, (1,))
+                pred_noise = self.model(x_valid,noise,delta.item())
+                noise = noise[:,-1:]
+                loss = self.criterion(pred_noise,noise)
+
+                epoch_loss+=loss.detach()*x_valid.shape[0]
+               
+        epoch_loss/=nsamp ## Average over full epoch
+        ## Now we want to allreduce loss over all processes
+        if self.ddp:
+            dist.all_reduce(epoch_loss, op=dist.ReduceOp.SUM)
+            ## Average across all processes
+            self.val_loss = epoch_loss.item()/self.world_size
+        else:
+            self.val_loss = epoch_loss.item()
+        if self.logging:
+            log_dic={}
+            log_dic["valid_loss"]=self.val_loss ## Average over full epoch
+            log_dic["training_step"]=self.training_step
+            wandb.log(log_dic)
+        if self.ema:
+            self.ema.restore()
+        return loss
+
+    def save_checkpoint(self, checkpoint_string):
+        """ Checkpoint model and optimizer """
+
+        save_dict={
+                    'epoch': self.epoch,
+                    'training_step': self.training_step,
+                    'state_dict': self.model.model.state_dict(),
+                    'optimizer_state_dict': self.optimizer.state_dict(),
+                    'config':self.config,
+                    }
+        with open(checkpoint_string, 'wb') as handle:
+            pickle.dump(save_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        return
+
+    def run(self,epochs=None):
+        if self.logging and self.wandb_init==False:
+            self.init_wandb()
+            self.model.model.config=self.config ## Update Unet config too, missed in parent call
+
+        if epochs:
+            max_epochs=epochs
+        else:
+            max_epochs=self.config["optimization"]["epochs"]
+
+        for epoch in range(self.epoch,max_epochs+1):
+            self.epoch=epoch
+            print("Training at epoch", self.epoch)
+            self.training_loop()
+            self.valid_loop()
+            self.save_checkpoint(self.config["save_path"]+"/checkpoint_last.p")
+            if self.ema:
+                self.ema.apply_shadow()
+                self.save_checkpoint(self.config["save_path"]+"/checkpoint_last_ema.p")
+                self.ema.restore()
+            
+        print("DONE on rank", self.gpu_id)
+        return
+
+class CTR_Trainer(CT_Trainer):
+    def __init__(self,config):
+        super().__init__(config)
+        self.timesteps = config["timesteps"]
+        if self.config["ddp"]==True:
+            raise NotImplementedError
 
     def training_loop(self):
         """ Training loop for Unified Unet for learning conditional distribution"""

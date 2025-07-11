@@ -21,6 +21,8 @@ def model_factory(config):
     """ Function to take a config dict, and return one of our nn.Modules """
     if config["model_type"]=="ModernUnet":
         return Unet.ModernUnet(config)
+    else if:
+        return Unet.ModernUnetRegressor(config)
     else:
         print("Model type not recognised")
         quit()

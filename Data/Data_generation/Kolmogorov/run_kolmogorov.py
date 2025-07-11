@@ -1,4 +1,3 @@
-import Data_Generation.Kolmogorov.util as util
 import Data.Data_generation.Kolmogorov.simulate as simulate
 
 import torch

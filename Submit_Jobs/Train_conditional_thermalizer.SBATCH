@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #SBATCH --job-name=Train_Therm
-#SBATCH --time=24:00:00
+#SBATCH --time=1:00:00
 #SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="a100|h100"
-#SBATCH --mem=128GB
+#SBATCH --mem=256GB
 #SBATCH --output=slurm_%j.out
 #SBATCH --mail-type=END
 #SBATCH --mail-user=ql2221@nyu.edu
