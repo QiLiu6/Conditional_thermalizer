@@ -9,7 +9,7 @@ import jax_cfd.spectral as spectral
 from jax_cfd.base import resize
 from jax_cfd.spectral import utils as spectral_utils
 
-def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, vis = 1e-4, gridsize = 512, downsample = 8, n_traj = 20, chunk_size = 1000):
+def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, viscosity = 1e-4, gridsize = 512, downsample = 8, n_traj = 20, chunk_size = 1000):
     """ 
     Jump_size = nsteps + decorr_steps
     Batch_size_per_sim = n_traj * (traj_T - spinup)/Jump_size

@@ -1,5 +1,5 @@
 n_sims: 5               ## Number of training sims to run
-trajectories: 20        ## Number of training trajectories per simulation, so the total number of trajectory is n_sims * trajectories
+n_traj: 20        ## Number of training trajectories per simulation, so the total number of trajectory is n_sims * trajectories
 chunk_size: 1000        ## Number of simulation steps to process at once (reduce if still getting OOM)
 
 nsteps: 5               ## Number of emulator timesteps to save for training, i.e. the length of a training rollout
