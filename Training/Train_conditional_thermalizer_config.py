@@ -11,7 +11,7 @@ os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 config={}
 config["input_channels"]=2
 config["output_channels"]=1
-config["model_type"]="ModernUnet"
+config["model_type"]="ModernUnetRegressor"
 config["dim_mults"]=[2,2,2] 
 config["hidden_channels"]=64
 config["activation"]="gelu"
@@ -23,7 +23,7 @@ config["timesteps"] = 1000
 config["lagsteps"] = 128
 
 config["lag_embedding"] = 512
-config["noise_timestep_embedding"] = 512
+#config["noise_timestep_embedding"] = 512
 
 config["project"]="thermalizer"
 
@@ -55,6 +55,6 @@ config["optimization"]["scheduler_gamma"]=0.5
 # trainer = Train_Unet.trainer_from_checkpoint(checkpoint_string)
 # trainer.config["optimization"]["epochs"]= config["optimization"]["epochs"]
 
-trainer = Train_CT.CTTrainer(config)
+trainer = Train_CT.CTR_Trainer(config)
 print(trainer.config["cnn learnable parameters"])
 trainer.run()

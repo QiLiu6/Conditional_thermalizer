@@ -32,7 +32,7 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, vis =
     ## These cuts split the simulation into short training trajectories
     cuts=[]
     for i in range(n_traj):
-        for j in range(nsteps)
+        for j in range(nsteps):
             cuts.append(spinup + i * (decorr_steps + nsteps) + j * (ratio))
 
     traj_T = cuts[-1]
