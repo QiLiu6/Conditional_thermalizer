@@ -70,7 +70,7 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
         
         spatial_coord = jnp.arange(grid.shape[0]) * 2 * jnp.pi / grid.shape[0]
         coords = {
-            'time': Dt * jnp.arange(len(trajectory_real)),
+            'time': Dt * jnp.arange(len(traj_real)),
             'x': spatial_coord,
             'y': spatial_coord,
         }
