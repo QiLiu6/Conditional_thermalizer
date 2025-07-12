@@ -75,7 +75,7 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
             'y': spatial_coord,
         }
         
-        return xarray.DataArray(trajectory_real, dims=["time", "x", "y"], coords=coords)
+        return xarray.DataArray(traj_real, dims=["time", "x", "y"], coords=coords)
         
     else:
         # First, run spinup phase and discard
