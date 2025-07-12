@@ -20,7 +20,7 @@ sim_stack=torch.tensor([],dtype=torch.float32)
 
 for aa in tqdm(range(config["n_sims"])):
     sim = simulate.run_kolmogorov_sim(config["nsteps"], config["dt"], config["Dt"], spinup=config["spinup"], decorr_steps = config["decorr_steps"],
-                                      vis=config["viscosity"], gridsize=config["gridsize"], downsample=config["downsample"], 
+                                      viscosity=config["viscosity"], gridsize=config["gridsize"], downsample=config["downsample"], 
                                       n_traj = config["n_traj"], chunk_size=config["chunk_size"])
     sim = torch.tensor(sim.values, dtype=torch.float32)
     sim=sim.reshape(1,int(config["nsteps"],sim.shape[-1],sim.shape[-1]))

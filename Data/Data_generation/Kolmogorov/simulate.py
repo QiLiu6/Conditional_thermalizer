@@ -68,7 +68,14 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
                 coarse_h = resize.downsample_spectral(None, grid, trajectory[aa])
                 traj_real[aa]=np.fft.irfftn(coarse_h)
         
-        return traj_real
+        spatial_coord = jnp.arange(grid.shape[0]) * 2 * jnp.pi / grid.shape[0]
+        coords = {
+            'time': Dt * jnp.arange(len(trajectory_real)),
+            'x': spatial_coord,
+            'y': spatial_coord,
+        }
+        
+        return xarray.DataArray(trajectory_real, dims=["time", "x", "y"], coords=coords)
         
     else:
         # First, run spinup phase and discard
@@ -131,7 +138,7 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
         full_trajectory = np.concatenate(all_trajectories, axis=0)
         
         # Create coordinates
-        spatial_coord = jnp.arange(final_grid.shape[0]) * 2 * jnp.pi / final_grid.shape[0]
+        spatial_coord = jnp.arange(grid.shape[0]) * 2 * jnp.pi / grid.shape[0]
         coords = {
             'time': Dt * jnp.arange(len(full_trajectory)),
             'x': spatial_coord,
