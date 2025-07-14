@@ -38,10 +38,14 @@ def trainer_from_checkpoint(checkpoint_string):
         model_dict = pickle.load(fp)
     if model_dict["config"]["model_type"]=='ModernUnet':
         trainer = CT_Trainer(model_dict["config"])
-    else if model_dict["config"]["model_type"]=='ModernUnetRegressor':
+    elif model_dict["config"]["model_type"]=='ModernUnetRegressor':
         trainer = CTR_Trainer(model_dict["config"])
         trainer.load_checkpoint(checkpoint_string)
+    else:
+        print("Invalid base model for diffusion model.")
+        break
     return trainer
+        
 
 
 class Trainer:

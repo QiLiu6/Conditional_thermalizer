@@ -5,8 +5,8 @@ chunk_size: 1000        ## Number of simulation steps to process at once (reduce
 nsteps: 5               ## Number of emulator timesteps to save for training, i.e. the length of a training rollout
 dt: 0.001               ## Numerical timestep for jax_cfd
 Dt: 0.002               ## Actually saved steps for training e.g. an emulator step
-spinup: 10000           ## How many numerical timesteps to run before storing snapshots, also known as spinup phase
-decorr_steps: 1995      ## How many numerical timesteps to seperate training trajectories by. Better to make is so that (traj_T - spinup) mod (nsteps + decorr_steps) = 0
+spinup: 5000           ## How many numerical timesteps to run before storing snapshots, also known as spinup phase
+decorr_steps: 995      ## How many numerical timesteps to seperate training trajectories by. Better to make is so that (traj_T - spinup) mod (nsteps + decorr_steps) = 0
 
 reynolds: 10000         ## Reynolds number
 gridsize: 512           ## Simulation gridsize
