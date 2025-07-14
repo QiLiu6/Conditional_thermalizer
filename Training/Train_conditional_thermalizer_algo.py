@@ -42,8 +42,7 @@ def trainer_from_checkpoint(checkpoint_string):
         trainer = CTR_Trainer(model_dict["config"])
         trainer.load_checkpoint(checkpoint_string)
     else:
-        print("Invalid base model for diffusion model.")
-        break
+        raise ValueError("Invalid base model for diffusion model.")
     return trainer
         
 
