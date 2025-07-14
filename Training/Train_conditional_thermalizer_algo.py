@@ -17,6 +17,7 @@ import torch.distributed as dist
 
 #for local use
 import Models.diffusion as diffusion
+import Models.diffusion_regression as diffusion_regression
 import Models.misc as misc
 import Data.Dataset as datasets
 
@@ -333,6 +334,14 @@ class CTR_Trainer(CT_Trainer):
         if self.config["ddp"]==True:
             raise NotImplementedError
 
+    def _prep_model(self):
+        model_unet=misc.model_factory(self.config).to(self.gpu_id)
+        self.model=diffusion_regression.Diffusion_regression(self.config, model=model_unet).to(self.gpu_id)
+        self.config["cnn learnable parameters"]=sum(p.numel() for p in self.model.parameters())
+        if self.config.get("ema_decay"):
+            self.ema=misc.ExponentialMovingAverage(self.model,decay=self.config.get("ema_decay"))
+            self.ema.register()
+            
     def training_loop(self):
         """ Training loop for Unified Unet for learning conditional distribution"""
         self.model.train()
