@@ -357,7 +357,7 @@ class CTR_Trainer(CT_Trainer):
             noise = noise.to(self.gpu_id)  # Move to GPU
             
             delta = torch.randint(1, self.config["lagsteps"]-1, (1,))
-            pred_noise, t, pred_noise_level = self.model(image,noise,delta.item(),True)
+            pred_noise, _, t, pred_noise_level = self.model(image,noise,delta.item(),True)
             
             noise = noise[:,-1:]
             loss = self.criterion(pred_noise,noise)
@@ -404,7 +404,7 @@ class CTR_Trainer(CT_Trainer):
                 noise = noise.to(self.gpu_id)  # Move to GPU
             
                 delta = torch.randint(1, self.config["lagsteps"]-1, (1,))
-                pred_noise, t, pred_noise_level = self.model(x_valid,noise,delta.item(),True)
+                pred_noise, _, t, pred_noise_level = self.model(x_valid,noise,delta.item(),True)
                 noise = noise[:,-1:]
                 loss = self.criterion(pred_noise,noise)
                 loss += self.lambda_c * F.cross_entropy(pred_noise_level,t)
