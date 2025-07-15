@@ -419,6 +419,7 @@ class ModernUnet(nn.Module):
         print("Model saved as %s" % save_string)
         return
 
+
 class ModernUnetRegressor(ModernUnet):
     """ Inherit the Modern Unet, but add a scalar output
         to perform regression, by overriding forward method """
@@ -435,9 +436,10 @@ class ModernUnetRegressor(ModernUnet):
         """ Forward pass - add a flag to optionally return the regression output, as this
             is not always needed """
         x = self.image_proj(x)
-
-        if delta is not None:
-            delta = delta.to(torch.float32)
+        if self.lag_embedding:
+            delta = misc.get_timestep_embedding(delta, self.lag_embedding)
+            delta = self.activation(self.lag_mlp1(delta))
+            delta = self.activation(self.lag_mlp2(delta))
 
         h = [x]
         for m in self.down:
