@@ -52,7 +52,7 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
     vorticity0 = cfd.finite_differences.curl_2d(v0).data
     vorticity_hat0 = jnp.fft.rfftn(vorticity0)
     
-    if nsteps < 10:
+    if nsteps < 1280:
         ## Trajectory here is in Fourier space
         _, trajectory = trajectory_fn(vorticity_hat0)
         
