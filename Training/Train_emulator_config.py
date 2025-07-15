@@ -1,6 +1,7 @@
 import os
 import Training.Train_emulator_algo as Train_emulator
 import wandb
+import Models.misc as misc
 
 ## Stop jax hoovering up GPU memory
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
@@ -15,6 +16,13 @@ config["activation"]="gelu"
 config["loader_workers"]=3
 config["ddp"]=False
 config["project"]="thermalizer"
+
+if len(sys.argv) > 1:
+    wandb_run_name = sys.argv[1]  # take the first argument
+else:
+    wandb_run_name = misc.rs()
+config["wandb_run_name"] = wandb_run_name
+
 config["rollout_scheduler"]=20000
 config["max_rollout"]=4
 config["norm"]=False

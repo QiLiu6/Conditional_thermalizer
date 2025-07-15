@@ -81,8 +81,12 @@ class Trainer:
 
     def init_wandb(self):
         ## Set up wandb stuff
-        wandb.init(entity="qiliu2221",project=self.config["project"],
-                        dir="/scratch/ql2221/thermalizer_data/wandb_data",config=self.config)
+        wandb.init(entity="qiliu2221",
+                   project=self.config["project"],
+                   dir="/scratch/ql2221/thermalizer_data/wandb_data",
+                   name=self.config["wandb_run_name"],
+                   config=self.config,
+                   )
         self.config["save_path"]=wandb.run.dir
         self.config["wandb_url"]=wandb.run.get_url()
         self.wandb_init=True 
@@ -370,29 +374,6 @@ class ResidualEmulatorTrainer(Trainer):
         print("DONE on rank", self.gpu_id)
 
         return
-
-    def performance_long(self,steps=int(1e5)):
-        """ Run long run performance test - here we just run the emulator
-            for a long time, without true simulation steps to compare against
-            due to speed and memory limitations """
-
-        if self.ema:
-            self.ema.apply_shadow()
-
-        ## Load test data
-        with open("/scratch/cp3759/thermalizer_data/kolmogorov/reynolds10k/test40.p", 'rb') as fp:
-            test_suite = pickle.load(fp)
-
-        ## Make sure train and test increments are the same
-        assert test_suite["increment"]==self.config["increment"]
-
-        fig_ens,fig_field=performance.long_run_figures(self.model,test_suite["data"][:,0,:,:].to("cuda")/self.model.config["field_std"],steps=steps,
-                                    residual=self.residual,sigma=self.sigma)
-        if self.logging and self.wandb_init:
-            wandb.log({"Long Ens": wandb.Image(fig_ens)})
-            wandb.log({"Long field": wandb.Image(fig_field)})
-        plt.close()
-        return 
 
     def performance(self,silence=True):
         """ Run some performance metrics """

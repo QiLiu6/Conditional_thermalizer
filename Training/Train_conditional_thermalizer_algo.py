@@ -331,6 +331,8 @@ class CTR_Trainer(CT_Trainer):
     def __init__(self,config):
         super().__init__(config)
         self.timesteps = config["timesteps"]
+        self.lambda_c=config["regression_loss_weight"]
+        self.softmax = nn.Softmax(dim=1)
         if self.config["ddp"]==True:
             raise NotImplementedError
 
@@ -402,7 +404,7 @@ class CTR_Trainer(CT_Trainer):
                 noise = noise.to(self.gpu_id)  # Move to GPU
             
                 delta = torch.randint(1, self.config["lagsteps"]-1, (1,))
-                pred_noise, t, pred_noise_levle = self.model(x_valid,noise,delta.item(),True)
+                pred_noise, t, pred_noise_level = self.model(x_valid,noise,delta.item(),True)
                 noise = noise[:,-1:]
                 loss = self.criterion(pred_noise,noise)
                 loss += self.lambda_c * F.cross_entropy(pred_noise_level,t)
