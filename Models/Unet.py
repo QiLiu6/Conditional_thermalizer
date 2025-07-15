@@ -436,6 +436,9 @@ class ModernUnetRegressor(ModernUnet):
             is not always needed """
         x = self.image_proj(x)
 
+        if delta is not None:
+            delta = delta.to(torch.float32)
+
         h = [x]
         for m in self.down:
             x = m(x,delta)

@@ -62,7 +62,7 @@ class Diffusion_regression(nn.Module):
         Outputs:
                 pred_noise: torch tensor (same as x) : the model's prediction of noise after seeing the noised image.
         '''
-        delta = torch.full((x.shape[0],), delta, dtype=torch.float32, device=x.device)
+        delta = torch.full((x.shape[0],), delta, dtype=torch.int64, device=x.device)
         
         #generate random ts
         t = torch.randint(0,self.timesteps-1,(x.shape[0],)).to(x.device)
