@@ -169,7 +169,7 @@ class Diffusion_regression(nn.Module):
     @torch.no_grad()
     def _reverse_diffusion(self,x_conditional,delta,t,noise):
         x_t = x_conditional[:,0:1]
-        pred = self.model(x_conditional,delta,t)
+        pred, _ = self.model(x_conditional,delta,True)
 
         alpha_t=self.alphas.gather(-1,t).reshape(x_t.shape[0],1,1,1)
         alpha_t_cumprod=self.alphas_cumprod.gather(-1,t).reshape(x_t.shape[0],1,1,1)
