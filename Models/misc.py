@@ -92,7 +92,7 @@ def load_diffusion_model(file_string):
     elif model_dict["config"]["model_type"]=="ModernUnetRegressor":
         model_cnn=Unet.ModernUnetRegressor(model_dict["config"])
         model_cnn.load_state_dict(model_dict["state_dict"])
-        diffusion_model=diffusion.Diffusion_regression(model_dict["config"], model=model_cnn)
+        diffusion_model=diffusion_regression.Diffusion_regression(model_dict["config"], model=model_cnn)
     
     return diffusion_model
 
