@@ -14,6 +14,7 @@ from torch.utils.data import DataLoader
 
 import sys
 import Models.diffusion as diffusion
+import Models.diffusion_regression as diffusion_regression
 import Models.Unet as Unet
 
 ### Model factory
@@ -74,26 +75,6 @@ class CPU_Unpickler(pickle.Unpickler):
         else: return super().find_class(module, name)
 
 
-def load_model(file_string):
-    """ Load a pickled model, either on gpu or cpu """
-    with open(file_string, 'rb') as fp:
-        if torch.cuda.is_available():
-            model_dict = pickle.load(fp)
-        else:
-            model_dict = CPU_Unpickler(fp).load()
-
-    ## Check which model type to construct
-    try:
-        if model_dict["config"]["model_type"]=="ModernUnet":
-            model=Unet.ModernUnet(model_dict["config"])
-    except:
-        model=cnn.FCNN(model_dict["config"])
-
-    ## Load state_dict
-    model.load_state_dict(model_dict["state_dict"])
-    return model
-
-
 def load_diffusion_model(file_string):
     """ Load a diffusion model. Read config file from the pickle
         Reconstruct the CNN, then use same config file to create
@@ -107,11 +88,12 @@ def load_diffusion_model(file_string):
     if model_dict["config"]["model_type"]=="ModernUnet":
         model_cnn=Unet.ModernUnet(model_dict["config"])
         model_cnn.load_state_dict(model_dict["state_dict"])
-    else: 
-        print("Model type not recognised")
-        quit()
-
-    diffusion_model=diffusion.Diffusion(model_dict["config"], model=model_cnn)
+        diffusion_model=diffusion.Diffusion(model_dict["config"], model=model_cnn)
+    elif model_dict["config"]["model_type"]=="ModernUnet":
+        model_cnn=Unet.ModernUnetRegressor(model_dict["config"])
+        model_cnn.load_state_dict(model_dict["state_dict"])
+        diffusion_model=diffusion.Diffusion_regression(model_dict["config"], model=model_cnn)
+    
     return diffusion_model
 
 

@@ -26,7 +26,7 @@ config["lag_embedding"] = 512
 #config["noise_timestep_embedding"] = 512
 
 config["project"]="thermalizer"
-config["lambda_c"] = 0.5
+config["regression_loss_weight"] = 0.5
 
 if len(sys.argv) > 1:
     wandb_run_name = sys.argv[1]  # take the first argument
