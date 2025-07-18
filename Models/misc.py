@@ -74,7 +74,21 @@ class CPU_Unpickler(pickle.Unpickler):
             return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
         else: return super().find_class(module, name)
 
+def load_model(file_string):
+    """ Load a pickled model, either on gpu or cpu """
+    with open(file_string, 'rb') as fp:
+        if torch.cuda.is_available():
+            model_dict = pickle.load(fp)
+        else:
+            model_dict = CPU_Unpickler(fp).load()
 
+    if model_dict["config"]["model_type"]=="ModernUnet":
+        model=Unet.ModernUnet(model_dict["config"])
+
+    ## Load state_dict
+    model.load_state_dict(model_dict["state_dict"])
+    return model
+    
 def load_diffusion_model(file_string):
     """ Load a diffusion model. Read config file from the pickle
         Reconstruct the CNN, then use same config file to create
