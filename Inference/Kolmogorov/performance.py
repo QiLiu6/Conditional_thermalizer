@@ -15,14 +15,14 @@ from tqdm import tqdm
 ####
 ### Functions to run emulator and thermalize trajectories
 ###
-def run_conditional_emu(ics, emu, therm=None, n_steps=1000, lag = torch.tensor([1]), denoising_steps=5, freq = 25, silent=True, sigma=None, Regression = True):
+def run_conditional_emu(ics, emu, therm=None, n_steps=1000, delta = torch.tensor([1]), denoising_steps=5, freq = 25, silent=True, sigma=None, Regression = True):
     """ Run an emuluator on some ICs
     inputs:   
         ics: Bx1xLxL tensor:    initial conditions for emulator
         emu: nn.Module       :    torch emulator model
         therm:  nn.Module    :    diffusion model object
         n_steps: int         :    how many emulator steps to run
-        lag: int             :    how many snapshots in the past to condition on, needs to be a uniform tensor with the same length as the batch size of ics
+        delta: int             :    how many snapshots in the past to condition on, needs to be a uniform tensor with the same length as the batch size of ics
         denoising_steps: int :    how many denoising steps to take
         silent: boolean      :    silence tqdm progress bar (for slurm scripts)
         sigma:  int          :    noise std level if we have a stochastic rollout
@@ -42,14 +42,14 @@ def run_conditional_emu(ics, emu, therm=None, n_steps=1000, lag = torch.tensor([
                 state_vector[:,aa]=emu(state_vector[:,aa-1].unsqueeze(1)).squeeze()+state_vector[:,aa-1]
                 if sigma:
                     state_vector[:,aa]+=sigma*torch.randn_like(state_vector[:,aa],device=state_vector[:,aa].device)
-                if therm and aa % freq == 0 and aa - freq * lag[0].item() > 0:
+                if therm and aa % freq == 0 and aa - freq * delta[0].item() > 0:
                     x_t_noised = state_vector[:,aa].unsqueeze(1)
-                    x_t_minus = state_vector[:,aa - freq * lag[0].item()].unsqueeze(1)
+                    x_t_minus = state_vector[:,aa - freq * delta[0].item()].unsqueeze(1)
                     noised_plus_conditional = torch.cat((x_t_noised, x_t_minus), dim=1)
-                    pred_noise, pred_noise_level = therm.model(noised_plus_conditional,lag[0].item(),True)
+                    pred_noise, pred_noise_level = therm.model(noised_plus_conditional,delta,True)
                     pred_noise = pred_noise.to("cuda")
                     pred_noise_level = pred_noise_level.to("cuda")
-                    state_vector[:,aa]=therm.denoising(noised_plus_conditional, lag, pred_noise_level).squeeze()
+                    state_vector[:,aa]=therm.denoising(noised_plus_conditional, delta, pred_noise_level).squeeze()
         enstrophies=(abs(state_vector**2).sum(axis=(2,3)))
 
     else:
@@ -58,11 +58,11 @@ def run_conditional_emu(ics, emu, therm=None, n_steps=1000, lag = torch.tensor([
                 state_vector[:,aa]=emu(state_vector[:,aa-1].unsqueeze(1)).squeeze()+state_vector[:,aa-1]
                 if sigma:
                     state_vector[:,aa]+=sigma*torch.randn_like(state_vector[:,aa],device=state_vector[:,aa].device)
-                if therm and aa % freq == 0 and aa - freq * lag[0].item() > 0:
+                if therm and aa % freq == 0 and aa - freq * delta[0].item() > 0:
                     x_t_noised = state_vector[:,aa].unsqueeze(1)
-                    x_t_minus = state_vector[:,aa - freq * lag[0].item()].unsqueeze(1)
+                    x_t_minus = state_vector[:,aa - freq * delta[0].item()].unsqueeze(1)
                     noised_plus_conditional = torch.cat((x_t_noised, x_t_minus), dim=1)
-                    state_vector[:,aa]=therm.denoising(noised_plus_conditional, lag, denoising_steps).squeeze()
+                    state_vector[:,aa]=therm.denoising(noised_plus_conditional, delta, denoising_steps).squeeze()
         enstrophies=(abs(state_vector**2).sum(axis=(2,3)))
     return state_vector, enstrophies
 
