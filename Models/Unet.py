@@ -482,8 +482,8 @@ class ModernUnetRegressor(ModernUnet):
         return x
 
     @torch.no_grad()
-    def noise_class(self, x: torch.Tensor):
+    def noise_class(self, x: torch.Tensor, delta = None):
         """ Get predicted noise class  """
 
-        x = self.noise_class_distribution(x)
+        x = self.noise_class_distribution(x, delta)
         return x.argmax(1)
