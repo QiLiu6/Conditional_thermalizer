@@ -466,14 +466,18 @@ class ModernUnetRegressor(ModernUnet):
             return x
 
     @torch.no_grad()
-    def noise_class_distribution(self, x: torch.Tensor):
+    def noise_class_distribution(self, x: torch.Tensor, delta = None):
         """ Forward pass with only a regressor output - skipping the conv upsampling output for the
             score field prediction. Return the full predicted categorical distribution """
 
         x = self.image_proj(x)
+        if self.lag_embedding:
+            delta = misc.get_timestep_embedding(delta, self.lag_embedding)
+            delta = self.activation(self.lag_mlp1(delta))
+            delta = self.activation(self.lag_mlp2(delta))
         for m in self.down:
-            x = m(x)
-        x = self.middle(x)
+            x = m(x,delta)
+        x = self.middle(x,delta)
         x = self.softmax(self.regressor_block(x))
         return x
 
