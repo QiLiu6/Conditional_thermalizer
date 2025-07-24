@@ -120,7 +120,7 @@ class Diffusion_regression(nn.Module):
             we are doing whitening """
 
         ## Noise timestep
-        t=(torch.ones(len(x),dtype=torch.int64)*denoising_timestep).to(device)
+        t=(torch.ones(len(x),dtype=torch.int64, device=device)*denoising_timestep).to(device)
         noise=torch.randn_like(x[:,-1:]).to(device)
         x_t = x[:,0:1]
         x_t_minus = x[:,1:2]
