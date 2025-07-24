@@ -47,7 +47,7 @@ def run_conditional_emu(ics, emu, therm=None, n_steps=1000, delta = torch.tensor
                     x_t_minus = state_vector[:,aa - freq * delta[0].item()].unsqueeze(1)
                     noised_plus_conditional = torch.cat((x_t_noised, x_t_minus), dim=1)
                     pred_noise, _ = therm.model(noised_plus_conditional,delta,True)
-                    preds_noise_level = therm.model.noise_class(noised_plus_conditional,delta)
+                    pred_noise_level = therm.model.noise_class(noised_plus_conditional,delta)
                     state_vector[:,aa]=therm.denoising(noised_plus_conditional, delta, pred_noise_level).squeeze()
         enstrophies=(abs(state_vector**2).sum(axis=(2,3)))
 
