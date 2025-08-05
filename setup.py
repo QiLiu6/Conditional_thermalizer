@@ -11,5 +11,5 @@ setup(name="Conditional_thermalizer",
     url="https://github.com/QiLiu6/Conditional_thermalizer",
     author="Qi Liu",
     author_email="ql2221@nyu.edu",
-    packages=find_packages(include=['CT']),
+    packages=find_packages(include=['CT','CT.*']),
     )
