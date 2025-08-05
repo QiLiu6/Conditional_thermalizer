@@ -16,10 +16,10 @@ import torch.distributed as dist
 
 
 #for local use
-import Models.diffusion as diffusion
-import Models.diffusion_regression as diffusion_regression
-import Models.misc as misc
-import Data.Dataset as datasets
+import CT.Models.diffusion as diffusion
+import CT.Models.diffusion_regression as diffusion_regression
+import CT.Models.misc as misc
+import CT.Data.Dataset as datasets
 
 
 def setup():

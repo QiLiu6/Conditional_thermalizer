@@ -1,7 +1,7 @@
 import os
-import Training.Train_emulator_algo as Train_emulator
 import wandb
-import Models.misc as misc
+import CT.Training.Train_emulator_algo as Train_emulator
+import CT.Models.misc as misc
 
 ## Stop jax hoovering up GPU memory
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"

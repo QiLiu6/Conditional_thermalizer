@@ -13,9 +13,9 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 
 import sys
-import Models.diffusion as diffusion
-import Models.diffusion_regression as diffusion_regression
-import Models.Unet as Unet
+import CT.Models.diffusion as diffusion
+import CT.Models.diffusion_regression as diffusion_regression
+import CT.Models.Unet as Unet
 
 ### Model factory
 def model_factory(config):

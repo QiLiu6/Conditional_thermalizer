@@ -2,10 +2,10 @@
 
 from setuptools import setup, find_packages
 
-description = "Conditional_thermalizer"
+description = "CT"
 version="0.0.1"
 
-setup(name="Conditional_thermalizer",
+setup(name="CT",
     version=version,
     description=description,
     url="https://github.com/QiLiu6/Conditional_thermalizer",

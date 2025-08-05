@@ -4,7 +4,7 @@ from torch import nn
 import os
 import math
 import pickle
-import Models.misc as misc
+import CT.Models.misc as misc
 ## Adapted from the beautiful repo at https://github.com/pdearena/pdearena/blob/main/pdearena/modules/twod_unet.py
 
 class ResidualBlock(nn.Module):
