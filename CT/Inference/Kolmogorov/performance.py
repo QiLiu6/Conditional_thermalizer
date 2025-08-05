@@ -8,7 +8,7 @@ import matplotlib.animation as animation
 from IPython.display import HTML
 import os
 import sys
-import CT.Data.Data_generation.Kolmogorov.util as util
+import CT.Data.Data_generation.Kolmogorov_numerical.util as util
 from tqdm import tqdm
 
 

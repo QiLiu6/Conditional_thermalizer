@@ -1,18 +1,13 @@
-`'''
+'''
 Python3
 Author: Qi Liu
 This script is for generating data for the flow matching model's training. See detailed in Qi Liu's notion workspace: flow matching implementation for emulation
 Modified to process data in batches to avoid GPU memory issues.
 '''
 import torch
-import os
-import sys
-import performance
-sys.path.append('/home/ql2221/Projects/thermalizer/thermalizer/models')
-import misc
-
-sys.path.remove('/home/ql2221/Projects/thermalizer/thermalizer/models')
-sys.path.append('/home/ql2221/Projects/thermalizer/thermalizer/models')
+import CT.Inference.Kolmogorov.performance as performance
+import thermalizer.models.misc as Emulator_misc
+import CT.Models.misc as CT_misc
 
 print("Loading data and emulator...")
 
@@ -22,9 +17,9 @@ data_dict = torch.load("/scratch/ql2221/thermalizer_data/kolmogorov/reynold10k/c
 # Loading the emulator
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 file_string = '/scratch/ql2221/thermalizer_data/wandb_data/wandb/run-20250526_223850-r12kgbg1/files/checkpoint_best.p'
-emulator = misc.load_model(file_string).to(device)
+emulator = Emulator_misc.load_model(file_string).to(device)
 checkpoint_string = "/scratch/ql2221/thermalizer_data/wandb_data/wandb/run-20250610_205843-bigdey10/files/checkpoint_last.p"
-CT = misc.load_diffusion_model(checkpoint_string).to(device)
+CT = CT_misc.load_diffusion_model(checkpoint_string).to(device)
 
 # Normalize
 data = data_dict['data'] / 4.44
