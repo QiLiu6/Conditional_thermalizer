@@ -113,7 +113,7 @@ class Diffusion(nn.Module):
         return x_t, original_noise
 
     @torch.no_grad()
-    def denoising(self,x,delta,denoising_timestep,device="cuda"):
+    def denoising(self,x,delta,denoising_timestep,device="cuda",silence = False):
         """ Pass validation samples, x, and some denoising timestep.
             Add noise using forward diffusion, denoise these samples and return
             both the forward diffused and denoised images, after dewhitening if

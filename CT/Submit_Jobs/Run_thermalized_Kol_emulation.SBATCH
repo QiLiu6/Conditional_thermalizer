@@ -1,11 +1,11 @@
 #!/bin/bash
 
 #SBATCH --job-name=therm_kol
-#SBATCH --time=1:00:00
+#SBATCH --time=24:00:00
 #SBATCH --cpus-per-task=10
 #SBATCH --gres=gpu:1
 #SBATCH --constraint="a100|h100|v100"
-#SBATCH --mem=128GB
+#SBATCH --mem=700GB
 #SBATCH --output=slurm_%j.out
 #SBATCH --mail-type=END
 #SBATCH --mail-user=ql2221@nyu.edu

@@ -1,7 +1,7 @@
 import os
 import wandb
 import sys
-import Training.Train_conditional_thermalizer_algo as Train_CT
+import CT.Training.Train_conditional_thermalizer_algo as Train_CT
 import CT.Models.misc as misc
 
 
@@ -11,7 +11,7 @@ os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 config={}
 config["input_channels"]=2
 config["output_channels"]=1
-config["model_type"]="ModernUnetRegressor"
+config["model_type"]="ModernUnet"
 config["dim_mults"]=[2,2,2] 
 config["hidden_channels"]=64
 config["activation"]="gelu"
@@ -56,6 +56,6 @@ config["optimization"]["scheduler_gamma"]=0.5
 # trainer = Train_Unet.trainer_from_checkpoint(checkpoint_string)
 # trainer.config["optimization"]["epochs"]= config["optimization"]["epochs"]
 
-trainer = Train_CT.CTR_Trainer(config)
+trainer = Train_CT.CT_Trainer(config)
 print(trainer.config["cnn learnable parameters"])
 trainer.run()

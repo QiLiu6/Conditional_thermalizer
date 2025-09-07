@@ -53,7 +53,7 @@ for i in range(num_batches):
     
     try:
         # Roll out the initial conditions for this batch
-        emu_rollout_batch = performance.run_conditional_emu(ics_batch, emulator, therm=CT, n_steps=10000, lag = delta, denoising_steps=10, freq = 25, silent=True, sigma=None)
+        emu_rollout_batch, _ = performance.run_conditional_emu(ics_batch, emulator, therm=CT, n_steps=10000, delta = delta, denoising_steps=10, freq = 25, silent=True, sigma=None, Regression = False)
         print(f"Batch {i+1} rollout shape: {emu_rollout_batch.shape}")
         
         # Sub-sample to match the time-step of the numerical trajectories
