@@ -8,8 +8,7 @@ import matplotlib.animation as animation
 from IPython.display import HTML
 import os
 import sys
-sys.path.append('/home/ql2221/Projects/thermalizer/thermalizer/kolmogorov')
-import util
+import Emulator.Inference.kolmogorov.util as util
 from tqdm import tqdm
 
 
