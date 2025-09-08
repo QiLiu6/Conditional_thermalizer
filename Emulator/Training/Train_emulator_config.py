@@ -1,7 +1,8 @@
 import os
+import sys
 import wandb
 
-from Emulator.Training.Training_algo import Training
+import Emulator.Training.Training_algo as Training
 import CT.Models.misc as misc
 
 ## Stop jax hoovering up GPU memory
