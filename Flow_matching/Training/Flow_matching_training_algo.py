@@ -244,10 +244,10 @@ class Flow_matching_Trainer(Trainer):
                 nsamp += x_valid.shape[0]
                 loss = 0
                 B,T,L,_ = x_valid.shape
-                t = torch.randint(1, self.config["rollout_steps"]-1, (x_valid.shape[0],),device=image.device)
+                t = torch.randint(1, self.config["rollout_steps"]-1, (x_valid.shape[0],),device=x_valid.device)
                 batch_indices = torch.arange(x_valid.shape[0], device=x_valid.device)
-                true_t = x_valid[batch_indices, t, :, :].unsqueeze(1).to(image.device) 
-                emu_t = x_valid[batch_indices, int(T/2)+t, :, :].unsqueeze(1).to(image.device) 
+                true_t = x_valid[batch_indices, t, :, :].unsqueeze(1).to(x_valid.device) 
+                emu_t = x_valid[batch_indices, int(T/2)+t, :, :].unsqueeze(1).to(x_valid.device) 
                 s = torch.rand(x_valid.shape[0]).to(x_valid.device)
                 s_broadcast = s.view(-1, 1, 1, 1)
                 interpolant = s_broadcast * true_t + (1 - s_broadcast) * emu_t
