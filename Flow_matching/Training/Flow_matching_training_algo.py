@@ -187,6 +187,7 @@ class Flow_matching_Trainer(Trainer):
         self.model.train()
         for j,image in enumerate(self.train_loader):
             image = image.to(self.gpu_id)
+            B,T,L,_ = image.shape
             self.optimizer.zero_grad()
             
             t = torch.randint(1, self.config["rollout_steps"]-1, (image.shape[0],))
@@ -196,7 +197,7 @@ class Flow_matching_Trainer(Trainer):
             
             # Advanced indexing to get different timesteps per batch item
             true_t = image[batch_indices, t, :, :].unsqueeze(1)      # Add channel dim back
-            emu_t = image[batch_indices, 128+t, :, :].unsqueeze(1)   # Add channel dim back
+            emu_t = image[batch_indices, int(T/2)+t, :, :].unsqueeze(1)   # Add channel dim back
             
             # Now true_t and emu_t have shape (batch_size, 1, 64, 64)
 
