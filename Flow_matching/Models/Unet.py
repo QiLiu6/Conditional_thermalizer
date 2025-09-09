@@ -344,8 +344,8 @@ class ModernUnet(nn.Module):
         x = self.image_proj(x)
         if self.ratio_embedding:
             s = misc.get_timestep_embedding(s, self.ratio_embedding)
-            s = self.activation(self.s_mlp1(delta))
-            s = self.activation(self.s_mlp2(delta))
+            s = self.activation(self.s_mlp1(s))
+            s = self.activation(self.s_mlp2(s))
         if self.rollout_step_embedding:
             t = misc.get_timestep_embedding(t, self.rollout_step_embedding)
             t = self.activation(self.t_mlp1(t))

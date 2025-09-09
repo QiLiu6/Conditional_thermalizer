@@ -21,7 +21,7 @@ config["loader_workers"]=1
 config["image_size"]=64
 
 #how many steps do we allow the trajectory to seperate
-config["rollout_steps"] = 128
+config["rollout_steps"] = 100
 
 config["ratio_embedding"] = 512
 config["rollout_step_embedding"] = 512
