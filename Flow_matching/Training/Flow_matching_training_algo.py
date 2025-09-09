@@ -197,7 +197,7 @@ class Flow_matching_Trainer(Trainer):
             
             # Advanced indexing to get different timesteps per batch item
             true_t = image[batch_indices, t, :, :].unsqueeze(1).to(image.device)    # Add channel dim back
-            emu_t = image[batch_indices, int(T/2)+t, :, :].unsqueeze(1).(image.device)   # Add channel dim back
+            emu_t = image[batch_indices, int(T/2)+t, :, :].unsqueeze(1).to(image.device)   # Add channel dim back
             
             # Now true_t and emu_t have shape (batch_size, 1, 64, 64)
 
@@ -243,11 +243,11 @@ class Flow_matching_Trainer(Trainer):
                 x_valid = x_valid.to(self.gpu_id)
                 nsamp += x_valid.shape[0]
                 loss = 0
-                
-                t = torch.randint(1, self.config["rollout_steps"]-1, (x_valid.shape[0],))
+                B,T,L,_ = x_valid.shape
+                t = torch.randint(1, self.config["rollout_steps"]-1, (x_valid.shape[0],),device=image.device)
                 batch_indices = torch.arange(x_valid.shape[0], device=x_valid.device)
-                true_t = x_valid[batch_indices, t, :, :].unsqueeze(1)
-                emu_t = x_valid[batch_indices, 128+t, :, :].unsqueeze(1)
+                true_t = x_valid[batch_indices, t, :, :].unsqueeze(1).to(image.device) 
+                emu_t = x_valid[batch_indices, int(T/2)+t, :, :].unsqueeze(1).to(image.device) 
                 s = torch.rand(x_valid.shape[0]).to(x_valid.device)
                 s_broadcast = s.view(-1, 1, 1, 1)
                 interpolant = s_broadcast * true_t + (1 - s_broadcast) * emu_t
