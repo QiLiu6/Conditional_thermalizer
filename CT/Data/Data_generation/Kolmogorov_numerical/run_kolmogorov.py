@@ -1,4 +1,4 @@
-import CT.Data.Data_generation.Kolmogorov.simulate as simulate
+import CT.Data.Data_generation.Kolmogorov_numerical.simulate as simulate
 
 import torch
 import argparse
