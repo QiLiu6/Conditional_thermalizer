@@ -58,10 +58,9 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
         
         trajectory=trajectory[cuts,:,:]
         traj_real=np.fft.irfftn(trajectory, axes=(1,2))
-        
-        traj_real=np.empty((traj_real.shape[0],int(traj_real.shape[1]/downsample),int(traj_real.shape[1]/downsample)))
 
         if downsample is not None:
+            traj_real=np.empty((traj_real.shape[0],int(traj_real.shape[1]/downsample),int(traj_real.shape[1]/downsample)))
             ## Overwrite grid object
             grid = grids.Grid(((int(gridsize/downsample), int(gridsize/downsample))), domain=((0, 2 * jnp.pi), (0, 2 * jnp.pi)))
             for aa in range(len(trajectory)):
@@ -111,12 +110,13 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
             
             # Subsample to physical timesteps
             chunk_trajectory_subsampled = chunk_trajectory[::ratio]
-            
-            # Convert to real space
-            chunk_traj_real = np.fft.irfftn(chunk_trajectory_subsampled, axes=(1, 2))
-            
+
             # Downsample if needed
-            if downsample is not None:
+            if downsample is None:
+                # Convert to real space
+                chunk_traj_real = np.fft.irfftn(chunk_trajectory_subsampled, axes=(1, 2))
+            else:
+                chunk_traj_real=np.empty((chunk_traj_real.shape[0],int(chunk_traj_real.shape[1]/downsample),int(chunk_traj_real.shape[1]/downsample)))
                 ## Overwrite grid object
                 grid = grids.Grid(((int(gridsize/downsample), int(gridsize/downsample))), domain=((0, 2 * jnp.pi), (0, 2 * jnp.pi)))
                 for aa in range(len(chunk_traj_real)):
