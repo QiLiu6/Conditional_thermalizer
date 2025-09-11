@@ -121,10 +121,10 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
                 grid = grids.Grid(((int(gridsize/downsample), int(gridsize/downsample))), domain=((0, 2 * jnp.pi), (0, 2 * jnp.pi)))
                 for aa in range(len(chunk_traj_real)):
                     coarse_h = resize.downsample_spectral(None, grid, chunk_trajectory_subsampled[aa])
-                    chunk_traj_real[aa]=np.fft.irfftn(coarse_h) ## Using numpy here as jnp won't allow for loops.. but this is gross
+                    chunk_traj_downsampled[aa]=np.fft.irfftn(coarse_h) ## Using numpy here as jnp won't allow for loops.. but this is gross
                 
             # Store this chunk
-            all_trajectories.append(chunk_traj_real)
+            all_trajectories.append(chunk_traj_downsampled)
             
             # Clean up memory
             del chunk_trajectory_fn, chunk_trajectory, chunk_trajectory_subsampled, chunk_traj_real
