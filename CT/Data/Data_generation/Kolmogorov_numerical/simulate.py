@@ -116,7 +116,7 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
             
             # Downsample if needed
             if downsample is not None:
-                chunk_traj_real=np.empty((chunk_traj_real.shape[0],int(chunk_traj_real.shape[1]/downsample),int(chunk_traj_real.shape[1]/downsample)))
+                chunk_traj_downsampled=np.empty((chunk_traj_real.shape[0],int(chunk_traj_real.shape[1]/downsample),int(chunk_traj_real.shape[1]/downsample)))
                 ## Overwrite grid object
                 grid = grids.Grid(((int(gridsize/downsample), int(gridsize/downsample))), domain=((0, 2 * jnp.pi), (0, 2 * jnp.pi)))
                 for aa in range(len(chunk_traj_real)):
