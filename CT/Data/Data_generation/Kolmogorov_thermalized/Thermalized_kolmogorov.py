@@ -28,7 +28,7 @@ data = data_dict['data'] / 4.44
 # Get the initial conditions
 batch_number = int(sys.argv[1])
 start_idx = (batch_number) * 3456
-end_inx = start_indx + 3456
+end_inx = start_idx + 3456
 ics = data[start_idx:end_inx, 0, :, :].unsqueeze(1)  # Shape: [34560, 1, 64, 64]
 print(f"Initial conditions shape: {ics.shape}")
 
