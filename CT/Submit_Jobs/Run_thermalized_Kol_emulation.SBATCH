@@ -15,5 +15,5 @@ module purge
 singularity exec --nv \
 	    --overlay /scratch/ql2221/torch_sing/overlay-15GB-500K.ext3:ro \
 	    /scratch/work/public/singularity/cuda12.1.1-cudnn8.9.0-devel-ubuntu22.04.2.sif \
-	    /bin/bash -c "source /ext3/env.sh; python3 /home/ql2221/Projects/Conditional_thermalizer/CT/Data/Data_generation/Kolmogorov_thermalized/Thermalized_kolmogorov.py
+	    /bin/bash -c "source /ext3/env.sh; python3 /home/ql2221/Projects/Conditional_thermalizer/CT/Data/Data_generation/Kolmogorov_thermalized/Thermalized_kolmogorov.py 1
 "

@@ -23,7 +23,7 @@ for aa in tqdm(range(config["n_sims"])):
                                       viscosity=config["viscosity"], gridsize=config["gridsize"], downsample=config["downsample"], 
                                       n_traj = config["n_traj"], chunk_size=config["chunk_size"])
     sim = torch.tensor(sim.values, dtype=torch.float32)
-    sim=sim.reshape(int(config["n_traj"]),int(config["nsteps"]),sim.shape[-1],sim.shape[-1])
+    sim=sim.reshape(int(config["n_traj"]),int(config["nsteps"]/config["Dt/dt"]),sim.shape[-1],sim.shape[-1])
     sim_stack=torch.cat((sim_stack,sim.clone().detach()), dim = 0)
 
 save_dict={"data_config":config,

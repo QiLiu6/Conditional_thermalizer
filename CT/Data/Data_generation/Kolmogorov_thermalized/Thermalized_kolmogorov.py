@@ -8,6 +8,7 @@ import torch
 import CT.Inference.Kolmogorov.performance as performance
 import thermalizer.models.misc as Emulator_misc
 import CT.Models.misc as CT_misc
+import sys
 
 print("Loading data and emulator...")
 
@@ -25,7 +26,10 @@ CT = CT_misc.load_diffusion_model(checkpoint_string).to(device)
 data = data_dict['data'] / 4.44
 
 # Get the initial conditions
-ics = data[0:3455, 0, :, :].unsqueeze(1)  # Shape: [34560, 1, 64, 64]
+batch_number = int(sys.argv[1])
+start_idx = (batch_number) * 3456
+end_inx = start_indx + 3456
+ics = data[start_idx:end_inx, 0, :, :].unsqueeze(1)  # Shape: [34560, 1, 64, 64]
 print(f"Initial conditions shape: {ics.shape}")
 
 # Process in much smaller batches to avoid GPU memory issues
@@ -53,7 +57,7 @@ for i in range(num_batches):
     
     try:
         # Roll out the initial conditions for this batch
-        emu_rollout_batch, _ = performance.run_conditional_emu(ics_batch, emulator, therm=CT, n_steps=10000, delta = delta, denoising_steps=10, freq = 25, silent=True, sigma=None, Regression = False)
+        emu_rollout_batch, _ = performance.run_conditional_emu(ics_batch, emulator, therm=CT, n_steps=20000, delta = delta, denoising_steps=15, freq = 25, silent=True, sigma=None, Regression = False)
         print(f"Batch {i+1} rollout shape: {emu_rollout_batch.shape}")
         
         # Sub-sample to match the time-step of the numerical trajectories
@@ -85,7 +89,8 @@ print(f"Final concatenated shape: {emu_rollout_subsampled.shape}")
 
 # Save the subsampled data
 print("Saving results...")
-torch.save(emu_rollout_subsampled, "/scratch/ql2221/thermalizer_data/kolmogorov/reynold10k/Therm_rollout.p")
+save_name = "/scratch/ql2221/thermalizer_data/kolmogorov/reynold10k/Therm_rollout_" + sys.argv[1] + ".p"
+torch.save(emu_rollout_subsampled, save_name)
 print("Subsampled emulator rollout saved successfully!")
 
 # Clean up memory
