@@ -1,6 +1,6 @@
 n_sims: 5               ## Number of training sims to run
 n_traj: 1        ## Number of training trajectories per simulation, so the total number of trajectory is n_sims * trajectories
-chunk_size: 10000        ## Number of simulation steps to process at once (reduce if still getting OOM)
+chunk_size: 1000        ## Number of simulation steps to process at once (reduce if still getting OOM)
 
 nsteps: 100000               ## Number of emulator timesteps to save for training, i.e. the length of a training rollout
 dt: 0.001               ## Numerical timestep for jax_cfd

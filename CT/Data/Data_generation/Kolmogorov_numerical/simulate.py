@@ -109,7 +109,7 @@ def run_kolmogorov_sim(nsteps, dt, Dt, spinup = 5000, decorr_steps = 1995, visco
             vorticity_hat_current, chunk_trajectory = chunk_trajectory_fn(vorticity_hat_current)
             
             # Subsample to physical timesteps
-            chunk_trajectory_subsampled=chunk_trajectory[cuts,:,:]
+            chunk_trajectory_subsampled=chunk_trajectory[::ratio]
             
             # Convert to real space
             chunk_traj_real = np.fft.irfftn(chunk_trajectory_subsampled, axes=(1, 2))
